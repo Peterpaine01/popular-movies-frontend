@@ -6,44 +6,52 @@ import {
   FlatList,
   Image,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 
-const MovieScreen = ({ navigation }) => {
-  // const [moviesList, setMoviesList] = useState();
-  // const [isLoading, setIsLoading] = useState(true);
+const MovieScreen = ({ route, navigation }) => {
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGFjMTk3MjNhNzg4NTAwMTQzODg3YTYiLCJlbWFpbCI6ImZhY2FybGllckBnbWFpbC5jb20iLCJleHBpcmF0aW9uRGF0ZSI6IjIwMjQtMDMtMDhUMDA6MDA6MDAuMDAwWiIsImlzVHJhaW5pbmciOnRydWUsImlhdCI6MTcwMDc0NzA4OH0.gLcRmwgsWOAuztEhLM8QEZrX0x-odQvZIHY9KdBq5oA";
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const {data} = await axios.get(
-  //         `https://lereacteur-bootcamp-api.herokuapp.com/api/allocine/movies/popular`
-  //       );
-  //       console.log(data);
-  //       setMoviesList(data);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.log(error.message);
-  //     }
-  //   };
+  const { id, tiltle } = route.params;
+  const [movie, setMovie] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://lereacteur-bootcamp-api.herokuapp.com/api/allocine/movie/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log(response.data);
+        setMovie(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("catch Movie >>", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
   const styles = useStyle();
 
-  // if (isLoading === true) {
-  //   // We haven't finished checking for the token yet
-  //   return null;
-  // }
-
-  // isLoading ? (
-  //   <ActivityIndicator />
-  // ) :
-  return (
-    <View>
-      <Text>MovieScreen</Text>
+  return isLoading ? (
+    <ActivityIndicator />
+  ) : (
+    <View style={styles.article}>
+      <Image
+        source={{ uri: movie.poster_path.w500 }}
+        style={styles.imgBg}
+      ></Image>
     </View>
   );
 };
@@ -53,7 +61,7 @@ export default MovieScreen;
 const useStyle = () => {
   // Création du style
   // utilisation du hook "useWindowDimensions"
-  // const { height, width } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
 
   const styles = StyleSheet.create({
     // input: {
@@ -65,16 +73,18 @@ const useStyle = () => {
     // },
     article: {
       width: "100%",
+      padding: 10,
+      // borderBlockColor: "yellow",
+      // borderWidth: 2,
       display: "flex",
-      borderBlockColor: "yellow",
-      borderWidth: 2,
+      gap: 10,
+      flexDirection: "row",
     },
-    images: {
-      width: 150,
-      height: 120,
-      resizeMode: "cover",
-      borderBlockColor: "red",
-      borderWidth: 2,
+
+    imgBg: {
+      width: "100%",
+      height: height / 3,
+      resizeMode: "contain",
     },
   });
 
